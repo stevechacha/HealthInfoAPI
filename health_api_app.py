@@ -345,11 +345,28 @@ async def generic_exception_handler(request: Request, exc: Exception):
 # ======================
 # API Endpoints
 # ======================
+
+# Patients Endpoints
+@app.get(
+    "/patients",
+    response_model=ResponseModel[List[Patient]],
+    tags=["Patients"],
+    summary="Get all patients"
+)
+async def get_all_patients(api_key: str = Depends(get_api_key)):
+    """Get a list of all registered patients"""
+    patients = db.get_all_patients()
+    return ResponseModel.success(
+        data=patients,
+        message=f"Found {len(patients)} patients"
+    )
+
 @app.post(
     "/patients",
     response_model=ResponseModel[Patient],
     status_code=status.HTTP_201_CREATED,
-    tags=["Patients"]
+    tags=["Patients"],
+    summary="Register a new patient"
 )
 async def register_patient(
     patient: PatientCreate,
@@ -362,43 +379,57 @@ async def register_patient(
         message="Patient registered successfully"
     )
 
-@app.post(
-    "/programs",
-    response_model=ResponseModel[Program],
-    status_code=status.HTTP_201_CREATED,
-    tags=["Programs"]
+@app.get(
+    "/patients/search",
+    response_model=ResponseModel[List[Patient]],
+    tags=["Patients"],
+    summary="Search patients"
 )
-async def create_program(
-    program: ProgramCreate,
+async def search_patients(
+    name: Optional[str] = None,
+    program_id: Optional[str] = None,
     api_key: str = Depends(get_api_key)
 ):
-    """Create a new health program"""
-    new_program = ProgramService.create_program(program)
+    """Search patients by name or program enrollment"""
+    results = []
+    for patient in db.get_all_patients():
+        if name and name.lower() not in patient.full_name.lower():
+            continue
+        if program_id and program_id not in patient.enrolled_programs:
+            continue
+        results.append(patient)
     return ResponseModel.success(
-        data=new_program,
-        message="Program created successfully"
+        data=results,
+        message=f"Found {len(results)} matching patients"
     )
 
-@app.post(
-    "/enroll",
+@app.get(
+    "/patients/{patient_id}",
     response_model=ResponseModel[Patient],
-    tags=["Enrollments"]
+    tags=["Patients"],
+    summary="Get patient by ID"
 )
-async def enroll_patient(
-    request: EnrollmentRequest,
+async def get_patient(
+    patient_id: str,
     api_key: str = Depends(get_api_key)
 ):
-    """Enroll patient in a health program"""
-    updated_patient = EnrollmentService.enroll_patient(request)
+    """Get complete patient profile"""
+    patient = db.get_patient(patient_id)
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient not found"
+        )
     return ResponseModel.success(
-        data=updated_patient,
-        message="Patient enrolled successfully"
+        data=patient,
+        message="Patient retrieved"
     )
 
 @app.get(
     "/patients/{patient_id}/recommendations",
     response_model=ResponseModel[List[RecommendationResponse]],
-    tags=["Recommendations"]
+    tags=["Patients"],
+    summary="Get program recommendations for patient"
 )
 async def get_recommendations(
     patient_id: str,
@@ -428,50 +459,63 @@ async def get_recommendations(
         message="Recommendations generated"
     )
 
+# Programs Endpoints
 @app.get(
-    "/patients",
-    response_model=ResponseModel[List[Patient]],
-    tags=["Patients"]
+    "/programs",
+    response_model=ResponseModel[List[Program]],
+    tags=["Programs"],
+    summary="Get all programs"
 )
-async def search_patients(
-    name: Optional[str] = None,
-    program_id: Optional[str] = None
+async def get_all_programs(api_key: str = Depends(get_api_key)):
+    """Get a list of all health programs"""
+    programs = db.get_all_programs()
+    return ResponseModel.success(
+        data=programs,
+        message=f"Found {len(programs)} programs"
+    )
+
+@app.post(
+    "/programs",
+    response_model=ResponseModel[Program],
+    status_code=status.HTTP_201_CREATED,
+    tags=["Programs"],
+    summary="Create new program"
+)
+async def create_program(
+    program: ProgramCreate,
+    api_key: str = Depends(get_api_key)
 ):
-    """Search patients by name or program enrollment"""
-    results = []
-    for patient in db.get_all_patients():
-        if name and name.lower() not in patient.full_name.lower():
-            continue
-        if program_id and program_id not in patient.enrolled_programs:
-            continue
-        results.append(patient)
+    """Create a new health program"""
+    new_program = ProgramService.create_program(program)
     return ResponseModel.success(
-        data=results,
-        message="Patients found"
+        data=new_program,
+        message="Program created successfully"
     )
 
-@app.get(
-    "/patients/{patient_id}",
+# Enrollment Endpoints
+@app.post(
+    "/enroll",
     response_model=ResponseModel[Patient],
-    tags=["Patients"]
+    tags=["Enrollments"],
+    summary="Enroll patient in program"
 )
-async def get_patient(patient_id: str):
-    """Get complete patient profile"""
-    patient = db.get_patient(patient_id)
-    if not patient:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Patient not found"
-        )
+async def enroll_patient(
+    request: EnrollmentRequest,
+    api_key: str = Depends(get_api_key)
+):
+    """Enroll patient in a health program"""
+    updated_patient = EnrollmentService.enroll_patient(request)
     return ResponseModel.success(
-        data=patient,
-        message="Patient retrieved"
+        data=updated_patient,
+        message="Patient enrolled successfully"
     )
 
+# System Endpoints
 @app.get(
     "/health",
     response_model=ResponseModel[dict],
-    tags=["System"]
+    tags=["System"],
+    summary="System health check"
 )
 async def health_check():
     """System health check"""
