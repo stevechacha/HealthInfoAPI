@@ -74,14 +74,19 @@ curl -X POST "http://localhost:8000/patients" \
 **Response**
 ```json
 {
-  "patient_id": "PAT-a1b2c3d4",
-  "national_id": "A123456789",
-  "full_name": "Jane Doe",
-  "date_of_birth": "1985-05-15",
-  "blood_type": "O+",
-  "enrolled_programs": [],
-  "medical_history": []
+  "status": "success",
+  "message": "Patient registered successfully",
+  "data": {
+    "patient_id": "PAT-a1b2c3d4",
+    "national_id": "A123456789",
+    "full_name": "Jane Doe",
+    "date_of_birth": "1985-05-15",
+    "blood_type": "O+",
+    "enrolled_programs": [],
+    "medical_history": []
+  }
 }
+
 ```
 
 ## Testing
