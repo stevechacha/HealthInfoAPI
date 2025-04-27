@@ -247,6 +247,8 @@ The API returns structured error responses with details. Common errors include:
   http://localhost:8000
   ```
 
+## Android Implementation
+
 You can view the source code for HealthInfoAPI Implementation and contribute to the project on GitHub:  
 [HealthInfoApp on GitHub](https://github.com/stevechacha/HealthInfoApp)
 
