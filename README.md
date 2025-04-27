@@ -246,3 +246,23 @@ The API returns structured error responses with details. Common errors include:
   ```
   http://localhost:8000
   ```
+
+  
+## Screenshots
+
+![Screenshot 2025-04-27 at 17.40.32.png](images/Screenshot%202025-04-27%20at%2017.40.32.png)
+![Screenshot 2025-04-27 at 17.40.51.png](images/Screenshot%202025-04-27%20at%2017.40.51.png)
+![Screenshot 2025-04-27 at 17.40.54.png](images/Screenshot%202025-04-27%20at%2017.40.54.png)
+![Screenshot 2025-04-27 at 17.41.06.png](images/Screenshot%202025-04-27%20at%2017.41.06.png)
+
+## Swagger UI
+![Screenshot 2025-04-27 at 17.41.46.png](images/Screenshot%202025-04-27%20at%2017.41.46.png)
+![Screenshot 2025-04-27 at 17.42.21.png](images/Screenshot%202025-04-27%20at%2017.42.21.png)
+![Screenshot 2025-04-27 at 17.43.24.png](images/Screenshot%202025-04-27%20at%2017.43.24.png)
+![Screenshot 2025-04-27 at 17.43.38.png](images/Screenshot%202025-04-27%20at%2017.43.38.png)
+![Screenshot 2025-04-27 at 17.44.11.png](images/Screenshot%202025-04-27%20at%2017.44.11.png)
+![Screenshot 2025-04-27 at 17.44.28.png](images/Screenshot%202025-04-27%20at%2017.44.28.png)
+
+## Video Demo
+[Screen Recording 2025-04-27 at 17.29.42.mov](images/Screen%20Recording%202025-04-27%20at%2017.29.42.mov)
+[Screen R
