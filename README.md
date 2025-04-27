@@ -1,134 +1,248 @@
-# Healthcare Management System API
+# Health Information Management API
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![GitHub stars](https://img.shields.io/github/stars/stevechacha/HealthInfoAPI?style=social)](https://github.com/stevechacha/HealthInfoAPI/stargazers)
+[![Python Version](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.95+-green.svg)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A modern, secure, and scalable API for managing healthcare programs and patient data.
+A robust healthcare management system API built with FastAPI for managing patient records and health programs.
+
+🔗 **Live Demo**: [Coming Soon]()  
+📚 **API Documentation**: [View Swagger UI](https://healthinfoapi.example.com/docs) (after deployment)
+
+## Table of Contents
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [API Endpoints](#api-endpoints)
+- [Usage Examples](#usage-examples)
+- [Testing](#testing)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
-- **Patient Management**: Full CRUD operations for patient records
-- **Program Management**: Create and manage health programs
-- **Secure Authentication**: API key-based access control
-- **Data Validation**: Strong typing with Pydantic models
-- **Audit Logging**: Comprehensive request logging
-- **Health Monitoring**: System status endpoints
+### Patient Management
+- ✅ Patient registration with national ID verification
+- 🔍 Advanced patient search functionality
+- 📊 Patient profile with enrollment history
+- 💡 Automated program recommendations
 
-## Tech Stack
+### Program Management
+- 🏥 Multiple program types (Chronic, Preventive, etc.)
+- 🎯 Age-specific program targeting
+- 📈 Risk factor analysis
+- 🤝 Program enrollment management
 
-- **Framework**: FastAPI
-- **Authentication**: API Key Header
-- **Validation**: Pydantic
-- **Logging**: Python Standard logging
-- **Testing**: pytest (with async support)
+### Security
+- 🔑 API key authentication
+- 🛡️ Request validation middleware
+- 📝 Comprehensive audit logging
+- 🚦 Rate limiting (coming in v2.3)
 
-## Getting Started
+## System Architecture
 
-### Prerequisites
-
-- Python 3.9+
-- pipenv
-
-### Installation
-
-```bash
-git clone https://github.com/yourrepo/healthcare-api.git
-cd healthcare-api
-pipenv install --dev
-```
-
-### Configuration
-
-Create `.env` file:
-
-```ini
-API_KEY=your_secure_key_here
-APP_ENV=development
-```
-
-### Running the API
+```mermaid
+graph TD
+    A[Client] --> B[API Gateway]
+    B --> C[Authentication]
+    C --> D[Patient Service]
+    C --> E[Program Service]
+    D --> F[Database]
+    E --> F
+````
+## Installation & Setup
 
 ```bash
-pipenv run uvicorn main:app --reload
+# Clone repository
+git clone https://github.com/stevechacha/HealthInfoAPI.git
+cd HealthInfoAPI
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start development server
+uvicorn main:app --reload
 ```
 
-## API Documentation
+# API Documentation
 
-Access interactive documentation at `http://localhost:8000/docs`
+## Endpoint Reference
 
-### Example Requests
+### Register Patient
+**Endpoint**  
+`POST /patients`
 
-**Create Patient**
+**Request Body**
+```json
+{
+  "national_id": "1234567890",
+  "full_name": "Jane Doe",
+  "date_of_birth": "1985-05-15",
+  "blood_type": "O+"
+}
+```
+
+## API Endpoints Reference
+
+| Endpoint                | Method | Parameters                      | Description                      | Security  |
+|-------------------------|--------|---------------------------------|----------------------------------|-----------|
+| `/patients`             | POST   | `national_id`, `full_name`, `date_of_birth`, `blood_type` | Register new patient | API Key |
+| `/patients/{id}`        | GET    | `id` (path parameter)           | Get full patient profile         | API Key   |
+| `/programs`             | POST   | `name`, `program_type`, `target_age_group`, `risk_factors` | Create new health program | API Key |
+| `/enroll`               | POST   | `patient_id`, `program_id`      | Enroll patient in program        | API Key   |
+| `/patients/search`      | GET    | `name`, `program_id` (query params) | Search patients by criteria     | API Key   |
+| `/health`               | GET    | -                               | System health status             | Public    |
+
+
+## API Key Authentication
+
+All endpoints require the following header:
+
+```http
+X-API-Key: securekey123
+```
+
+---
+
+## Example API Usage
+
+### 1. Create a New Patient
+
 ```bash
-curl -X POST "http://localhost:8000/patients" \
-  -H "X-API-Key: your_secure_key_here" \
-  -H "Content-Type: application/json" \
+curl -X 'POST' \
+  'http://localhost:8000/patients' \
+  -H 'X-API-Key: securekey123' \
+  -H 'Content-Type: application/json' \
   -d '{
-    "national_id": "A123456789",
-    "full_name": "Jane Doe",
-    "date_of_birth": "1985-05-15",
-    "blood_type": "O+"
+    "national_id": "1234567890",
+    "full_name": "John Doe",
+    "date_of_birth": "1980-01-01",
+    "blood_type": "A+"
   }'
 ```
 
-**Response**
+**Response:**
+
 ```json
 {
   "status": "success",
   "message": "Patient registered successfully",
   "data": {
-    "patient_id": "PAT-a1b2c3d4",
-    "national_id": "A123456789",
-    "full_name": "Jane Doe",
-    "date_of_birth": "1985-05-15",
-    "blood_type": "O+",
+    "patient_id": "PAT-567890",
+    "national_id": "1234567890",
+    "full_name": "John Doe",
+    "date_of_birth": "1980-01-01",
+    "blood_type": "A+",
     "enrolled_programs": [],
-    "medical_history": []
+    "medical_history": [],
+    "created_at": "2023-10-15"
   }
 }
-
 ```
 
-## Testing
+---
 
-Run the test suite:
+### 2. Get All Patients
 
 ```bash
-pipenv run pytest -v
+curl -X 'GET' \
+  'http://localhost:8000/patients' \
+  -H 'X-API-Key: securekey123'
 ```
 
-## Deployment
+---
 
-Recommended deployment options:
+### 3. Create a New Program
 
-1. **Docker Container**
-```Dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-COPY . .
-RUN pip install -r requirements.txt
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```bash
+curl -X 'POST' \
+  'http://localhost:8000/programs' \
+  -H 'X-API-Key: securekey123' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Cardiac Rehabilitation",
+    "program_type": "rehabilitation",
+    "target_age_group": "40-80",
+    "risk_factors": ["heart disease", "high cholesterol"]
+  }'
 ```
 
-2. **Kubernetes**: See sample deployment in `/kubernetes/`
+---
 
-## Security
+### 4. Enroll Patient in Program
 
-- API key authentication for all endpoints
-- Secure headers middleware
-- Input validation for all requests
-- Rate limiting (implemented via middleware)
+```bash
+curl -X 'POST' \
+  'http://localhost:8000/enroll' \
+  -H 'X-API-Key: securekey123' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "patient_id": "PAT-567890",
+    "program_id": "PROG-abcdef"
+  }'
+```
 
-## Contributing
+---
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
+### 5. Get Program Recommendations
 
-## License
+```bash
+curl -X 'GET' \
+  'http://localhost:8000/patients/PAT-567890/recommendations' \
+  -H 'X-API-Key: securekey123'
+```
 
-MIT License
+**Sample Response:**
+
+```json
+{
+  "status": "success",
+  "message": "Recommendations generated",
+  "data": [
+    {
+      "program_id": "PROG-a1b2c3d4",
+      "program_name": "Diabetes Management",
+      "match_reasons": ["Age appropriate", "Risk factors match"]
+    }
+  ]
+}
+```
+
+---
+
+## Key Endpoints
+
+| Method | Path | Description |
+|:------:|:---- |:----------- |
+| `POST` | `/patients` | Register new patient |
+| `GET` | `/patients/{patient_id}` | Get patient details |
+| `POST` | `/programs` | Create new healthcare program |
+| `POST` | `/enroll` | Enroll patient in program |
+| `GET` | `/patients/search` | Search patients by name/program |
+| `GET` | `/health` | System health check |
+
+---
+
+## Error Handling
+
+The API returns structured error responses with details. Common errors include:
+
+- **401 Unauthorized**: Missing/invalid API key
+- **404 Not Found**: Resource not found
+- **422 Validation Error**: Invalid request data
+
+---
+
+## Development
+
+- The system initializes with sample data on startup:
+  - 2 healthcare programs
+  - Test patient records
+- Use the included Swagger UI for interactive testing:
+  
+  ```
+  http://localhost:8000
+  ```
